@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary-navy: #0A1828;
+    --color-dark-navy: #051018;
+    --color-saudi-green: #165C3B;
+    --color-cyber-teal: #00D4AA;
+    --color-warm-gold: #C9A063;
+    --color-alert-red: #E63946;
+    --color-light-gray: #F5F5F5;
+    --color-medium-gray: #E5E5E5;
+    --color-dark-gray: #4A4A4A;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button {
+    font-family: inherit;
+  }
+
+  input,
+  textarea {
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  .animate-bounce-slow {
+    animation: bounce 2s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Safe area insets for mobile devices (notches, etc.) */
+  .safe-area-inset {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  /* Prevent body scroll when mobile menu is open */
+  .mobile-menu-open {
+    overflow: hidden;
+  }
+}
