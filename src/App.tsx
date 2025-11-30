@@ -11,7 +11,16 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { SignInPage } from "@/pages/auth/SignInPage";
 import { OAuthCallbackPage } from "@/pages/auth/OAuthCallbackPage";
 import { IntegrationCallbackPage } from "@/pages/integrations/IntegrationCallbackPage";
-import { DashboardPage } from "@/pages/dashboard/DashboardPage";
+import { DashboardPage } from "@/pages/dashboard";
+import { SettingsPage } from "@/pages/settings";
+import {
+  UserDetailPage,
+  GroupDetailPage,
+  AppDetailPage,
+  AppsPage,
+  UsersPage,
+  GroupsPage,
+} from "@/pages/workspace";
 
 const AppLayout = () => (
   <>
@@ -50,6 +59,34 @@ const router = createBrowserRouter([
           {
             path: "dashboard",
             element: <DashboardPage />,
+          },
+          {
+            path: "apps",
+            element: <AppsPage />,
+          },
+          {
+            path: "apps/:id",
+            element: <AppDetailPage />,
+          },
+          {
+            path: "users",
+            element: <UsersPage />,
+          },
+          {
+            path: "users/:id",
+            element: <UserDetailPage />,
+          },
+          {
+            path: "groups",
+            element: <GroupsPage />,
+          },
+          {
+            path: "groups/:id",
+            element: <GroupDetailPage />,
+          },
+          {
+            path: "settings",
+            element: <SettingsPage />,
           },
           // Integration callback (protected - user must be logged in)
           {

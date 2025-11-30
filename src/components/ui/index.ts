@@ -25,3 +25,6 @@ export type { EmptyStateProps } from "./EmptyState";
 
 export { Modal } from "./Modal";
 export { Input, TextArea, Checkbox } from "./Input";
+
+export { default as Pagination } from "./Pagination";
+export { default as SearchInput } from "./SearchInput";
