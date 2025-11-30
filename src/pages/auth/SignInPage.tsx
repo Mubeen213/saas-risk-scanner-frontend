@@ -3,18 +3,28 @@
  * Google OAuth sign in/sign up page
  */
 
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Button, Card } from "@/components/ui";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Button, Card, Spinner } from "@/components/ui";
 import { getGoogleAuthUrl } from "@/api/auth";
 import { parseApiError } from "@/api/errors";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const SignInPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const from = location.state?.from?.pathname || "/dashboard";
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, isAuthLoading, navigate, from]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -38,6 +48,15 @@ export const SignInPage = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking auth status
+  if (isAuthLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">

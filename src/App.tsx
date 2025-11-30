@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { SignInPage } from "@/pages/auth/SignInPage";
 import { OAuthCallbackPage } from "@/pages/auth/OAuthCallbackPage";
+import { IntegrationCallbackPage } from "@/pages/integrations/IntegrationCallbackPage";
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 
 const AppLayout = () => (
@@ -49,6 +50,11 @@ const router = createBrowserRouter([
           {
             path: "dashboard",
             element: <DashboardPage />,
+          },
+          // Integration callback (protected - user must be logged in)
+          {
+            path: "integrations/callback",
+            element: <IntegrationCallbackPage />,
           },
         ],
       },

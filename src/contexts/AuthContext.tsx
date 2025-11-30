@@ -77,13 +77,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initAuth = async () => {
       // Try to get user info - works with either localStorage token or cookies
       try {
+        console.log("[AuthContext] Fetching current user...");
         const response = await getCurrentUser();
+        console.log("[AuthContext] getCurrentUser response:", response);
         if (response.data) {
+          console.log("[AuthContext] Setting user:", response.data);
           setUser(response.data);
+        } else {
+          console.log("[AuthContext] No user data in response");
         }
-      } catch {
+      } catch (error) {
+        console.error("[AuthContext] Error fetching user:", error);
         clearTokens();
       } finally {
+        console.log("[AuthContext] Setting isLoading to false");
         setIsLoading(false);
       }
     };

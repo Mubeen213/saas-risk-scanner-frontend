@@ -21,6 +21,16 @@ export const API_ENDPOINTS = {
     ME: "/auth/me",
     LOGOUT: "/auth/logout",
   },
+
+  // Integrations (Workspace Connection)
+  INTEGRATIONS: {
+    CONNECT: "/integrations/connect",
+    CALLBACK: "/integrations/callback",
+    LIST: "/integrations/connections",
+    SYNC: (connectionId: number) => `/integrations/sync`,
+    DISCONNECT: (connectionId: number) =>
+      `/integrations/connections/${connectionId}`,
+  },
 } as const;
 
 // Pagination Defaults

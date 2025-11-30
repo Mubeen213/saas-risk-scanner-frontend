@@ -114,36 +114,45 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // Don't try to refresh or redirect for auth-check requests (like /auth/me)
-      // These are expected to fail when user is not authenticated
-      const isAuthCheckRequest = originalRequest.url?.includes("/auth/me");
+      // Don't try to refresh for the refresh endpoint itself (would cause infinite loop)
+      const isRefreshRequest = originalRequest.url?.includes("/auth/refresh");
 
       // Don't redirect if already on an auth page
       const isOnAuthPage = window.location.pathname.startsWith("/auth");
 
-      const refreshToken = getRefreshToken();
-      if (refreshToken && !isAuthCheckRequest) {
+      // Try to refresh using cookie-based refresh token
+      if (!isRefreshRequest) {
         try {
+          console.log("[Auth] Attempting token refresh...");
+          // Send empty body - the refresh token is in HTTP-only cookie
           const response = await axios.post(
             `${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
-            { refresh_token: refreshToken },
+            {},
             { withCredentials: true }
           );
 
-          const { access_token, refresh_token } = response.data.data;
-          setTokens(access_token, refresh_token);
+          console.log("[Auth] Refresh response:", response.data?.status);
 
-          originalRequest.headers.Authorization = `Bearer ${access_token}`;
-          return apiClient(originalRequest);
-        } catch {
+          if (response.data?.status === "success") {
+            console.log(
+              "[Auth] Retrying original request:",
+              originalRequest.url
+            );
+            // Tokens are set in cookies by the backend, retry original request
+            const retryResponse = await apiClient(originalRequest);
+            console.log("[Auth] Retry successful:", retryResponse.status);
+            return retryResponse;
+          }
+        } catch (refreshError) {
+          console.error("[Auth] Refresh failed:", refreshError);
           clearTokens();
           // Only redirect if not already on auth page
           if (!isOnAuthPage) {
             window.location.href = "/auth/signin";
           }
         }
-      } else if (!isAuthCheckRequest && !isOnAuthPage) {
-        // Only redirect if it's not an auth check and we're not already on auth page
+      } else if (!isOnAuthPage) {
+        // Refresh failed, redirect to sign in
         clearTokens();
         window.location.href = "/auth/signin";
       }
