@@ -9,7 +9,7 @@ import apiClient from "./client";
 
 // Types
 export interface IntegrationConnectRequest {
-  provider_slug: string;
+  identity_provider_slug: string;
 }
 
 export interface IntegrationConnectResponse {
@@ -20,9 +20,9 @@ export interface IntegrationConnectResponse {
 export interface ConnectionInfo {
   id: number;
   organization_id: number;
-  provider_id: number;
-  provider_slug: string;
-  provider_name: string;
+  identity_provider_id: number;
+  identity_provider_slug: string;
+  identity_provider_name: string;
   status: string;
   admin_email: string | null;
   workspace_domain: string | null;
@@ -55,7 +55,9 @@ export const initiateConnection = async (
 ): Promise<ApiResponse<IntegrationConnectResponse>> => {
   const response = await apiClient.post<
     ApiResponse<IntegrationConnectResponse>
-  >(API_ENDPOINTS.INTEGRATIONS.CONNECT, { provider_slug: providerSlug });
+  >(API_ENDPOINTS.INTEGRATIONS.CONNECT, {
+    identity_provider_slug: providerSlug,
+  });
   return response.data;
 };
 
