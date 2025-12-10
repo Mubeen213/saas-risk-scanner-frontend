@@ -19,16 +19,16 @@ const StatsCard = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 bg-background-primary rounded-xl p-5",
+        "flex items-center gap-4 bg-background-primary rounded-xl p-5 border border-border-light shadow-sm transition-all duration-200 hover:shadow-md",
         disabled && "opacity-50"
       )}
     >
       <div
         className={cn(
-          "flex h-11 w-11 items-center justify-center rounded-lg",
+          "flex h-12 w-12 items-center justify-center rounded-xl",
           disabled
             ? "bg-background-tertiary text-text-tertiary"
-            : "bg-info-50 text-info-500"
+            : "bg-brand-secondary/10 text-brand-secondary"
         )}
       >
         {icon}
@@ -41,10 +41,10 @@ const StatsCard = ({
           </div>
         ) : (
           <>
-            <div className="text-2xl font-semibold text-text-primary">
+            <div className="text-2xl font-bold text-text-primary tracking-tight">
               {disabled ? "--" : value}
             </div>
-            <div className="text-sm text-text-secondary">{label}</div>
+            <div className="text-sm font-medium text-text-secondary">{label}</div>
           </>
         )}
       </div>

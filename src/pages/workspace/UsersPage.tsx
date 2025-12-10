@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Users, AlertCircle, RefreshCw } from "lucide-react";
-import { Button, Spinner, EmptyState } from "@/components/ui";
+import { Button, EmptyState } from "@/components/ui";
 import { Pagination, SearchInput } from "@/components/ui";
-import { DataList, UserListItem } from "@/components/workspace";
+import Table, { Column } from "@/components/ui/Table";
 import { getWorkspaceUsers } from "@/api/workspace";
 import type { WorkspaceUserListItem, PaginationInfo } from "@/types/workspace";
 
@@ -66,9 +66,79 @@ const UsersPage = () => {
     setPage(newPage);
   };
 
+  const columns: Column<WorkspaceUserListItem>[] = [
+    {
+      key: "full_name",
+      header: "User",
+      render: (user) => (
+        <div className="flex items-center gap-3">
+          {user.avatar_url ? (
+            <img
+              src={user.avatar_url}
+              alt={user.full_name || user.email}
+              className="h-8 w-8 rounded-full object-cover border border-border-medium"
+            />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-secondary text-white text-xs font-medium shrink-0">
+              {(user.full_name || user.email)[0].toUpperCase()}
+            </div>
+          )}
+          <div className="flex flex-col min-w-0">
+            <span className="font-medium text-text-primary truncate">
+              {user.full_name || user.email.split("@")[0]}
+            </span>
+            <span className="text-xs text-text-tertiary truncate">
+              {user.email}
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "email",
+      header: "Email",
+      render: (user) => (
+        <span className="text-text-secondary">{user.email}</span>
+      ),
+    },
+    {
+      key: "is_admin",
+      header: "Role",
+      render: (user) => (
+        <span
+          className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+            user.is_admin
+              ? "bg-brand-secondary/10 text-brand-secondary"
+              : "bg-background-tertiary text-text-secondary"
+          }`}
+        >
+          {user.is_admin ? "Admin" : "User"}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      render: (user) => {
+        const isSuspended = user.status?.toLowerCase() === "suspended";
+        return (
+          <span
+            className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+              !isSuspended
+                ? "bg-success-100 text-success-500"
+                : "bg-error-100 text-error-500"
+            }`}
+          >
+            {user.status || "Unknown"}
+          </span>
+        );
+      },
+    },
+  ];
+
   if (listState.error && listState.items.length === 0) {
     return (
-      <div className="bg-background-primary rounded-xl p-8">
+      <div className="bg-background-primary rounded-xl p-8 shadow-sm border border-border-light">
         <EmptyState
           icon={<AlertCircle className="h-12 w-12 text-error-500" />}
           title="Failed to load users"
@@ -87,51 +157,41 @@ const UsersPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-text-primary">Users</h1>
-        <p className="mt-1 text-text-secondary">
-          All users in your Google Workspace
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Users</h1>
+          <p className="mt-1 text-text-secondary">
+            All users in your Google Workspace
+          </p>
+        </div>
+        <div className="w-full sm:w-72">
+          <SearchInput
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Search users..."
+            isLoading={listState.isLoading}
+          />
+        </div>
       </div>
 
-      {/* Search */}
-      <div className="max-w-md">
-        <SearchInput
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Search users..."
-          isLoading={listState.isLoading}
-        />
-      </div>
+      {/* Users Table */}
+      <Table
+        columns={columns}
+        data={listState.items}
+        isLoading={listState.isLoading}
+        emptyMessage="No users found"
+      />
 
-      {/* Users List */}
-      <div className="bg-background-primary rounded-xl overflow-hidden">
-        <DataList
-          items={listState.items}
-          isLoading={listState.isLoading}
-          error={listState.error}
-          emptyState={{
-            title: "No users found",
-            description: "Workspace users will appear here after syncing.",
-            icon: <Users className="h-12 w-12 text-text-tertiary" />,
-          }}
-          skeletonVariant="user"
-          skeletonCount={10}
-          renderItem={(item) => <UserListItem key={item.id} user={item} />}
-          onRetry={fetchUsers}
-        />
-
-        {listState.pagination && listState.pagination.total_pages > 1 && (
-          <div className="px-4 py-3 border-t border-border-light">
-            <Pagination
-              currentPage={listState.pagination.page}
-              totalPages={listState.pagination.total_pages}
-              onPageChange={handlePageChange}
-              isLoading={listState.isLoading}
-            />
-          </div>
-        )}
-      </div>
+      {listState.pagination && listState.pagination.total_pages > 1 && (
+        <div className="flex justify-center">
+          <Pagination
+            currentPage={listState.pagination.page}
+            totalPages={listState.pagination.total_pages}
+            onPageChange={handlePageChange}
+            isLoading={listState.isLoading}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { AlertCircle, RefreshCw } from "lucide-react";
-import { Button, Spinner, EmptyState } from "@/components/ui";
+import { AlertCircle, RefreshCw, BarChart3, Lock } from "lucide-react";
+import { Button, Spinner, EmptyState, Card } from "@/components/ui";
 import { StatsGrid, ConnectWorkspaceCTA } from "@/components/workspace";
 import { getWorkspaceStats, getConnectionSettings } from "@/api/workspace";
 import type { WorkspaceStats, ConnectionSettings } from "@/types/workspace";
@@ -81,7 +81,7 @@ const DashboardPage = () => {
 
   if (connectionError) {
     return (
-      <div className="bg-background-primary rounded-xl p-8">
+      <div className="bg-background-primary rounded-xl p-8 shadow-sm border border-border-light">
         <EmptyState
           icon={<AlertCircle className="h-12 w-12 text-error-500" />}
           title="Failed to check connection status"
@@ -99,9 +99,9 @@ const DashboardPage = () => {
 
   if (connectionLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16">
+      <div className="flex flex-col items-center justify-center py-32">
         <Spinner size="lg" />
-        <p className="mt-4 text-text-secondary">
+        <p className="mt-4 text-text-secondary font-medium">
           Checking connection status...
         </p>
       </div>
@@ -110,7 +110,7 @@ const DashboardPage = () => {
 
   if (!isConnected) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto py-12">
         <ConnectWorkspaceCTA
           onConnect={handleConnect}
           isConnecting={isConnecting}
@@ -124,36 +124,66 @@ const DashboardPage = () => {
     <div className="space-y-8">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-text-primary">Dashboard</h1>
-        <p className="mt-1 text-text-secondary">
+        <h1 className="text-3xl font-bold text-text-primary tracking-tight">Dashboard</h1>
+        <p className="mt-2 text-text-secondary text-lg">
           Overview of your Google Workspace security posture
         </p>
       </div>
 
       {/* Stats Overview */}
-      <StatsGrid
-        stats={stats}
-        isLoading={statsLoading}
-        isConnected={isConnected}
-      />
+      <section>
+        <StatsGrid
+          stats={stats}
+          isLoading={statsLoading}
+          isConnected={isConnected}
+        />
+      </section>
 
       {statsError && (
-        <div className="rounded-lg bg-warning-50 px-4 py-3 flex items-center justify-between">
-          <span className="text-sm text-text-secondary">
+        <div className="rounded-lg bg-warning-50 px-4 py-3 flex items-center justify-between border border-warning-100">
+          <span className="text-sm text-warning-700 font-medium">
             Failed to load statistics
           </span>
-          <Button size="sm" variant="ghost" onClick={fetchStats}>
+          <Button size="sm" variant="ghost" onClick={fetchStats} className="text-warning-700 hover:bg-warning-100">
             Retry
           </Button>
         </div>
       )}
 
-      {/* Placeholder for future content */}
-      <div className="bg-background-primary rounded-xl border border-border-light p-12">
-        <div className="text-center text-text-tertiary">
-          <p className="text-sm">Analytics and insights coming soon</p>
-        </div>
-      </div>
+      {/* Analytics Placeholder */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card padding="xl" className="flex flex-col items-center justify-center min-h-[300px] text-center space-y-4 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-background-secondary to-transparent opacity-50" />
+          <div className="relative z-10 bg-background-primary p-4 rounded-full shadow-sm mb-2">
+             <BarChart3 className="h-8 w-8 text-brand-secondary" />
+          </div>
+          <div className="relative z-10 max-w-sm">
+            <h3 className="text-lg font-semibold text-text-primary">Analytics Dashboard</h3>
+            <p className="text-text-secondary mt-1">
+              Detailed insights into your workspace security trends and risk factors are coming soon.
+            </p>
+          </div>
+          <div className="absolute inset-0 bg-background-primary/5 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+             <span className="bg-background-primary px-4 py-2 rounded-full shadow-lg text-sm font-medium text-brand-secondary">Coming Soon</span>
+          </div>
+        </Card>
+
+        <Card padding="xl" className="flex flex-col items-center justify-center min-h-[300px] text-center space-y-4 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-bl from-background-secondary to-transparent opacity-50" />
+           <div className="relative z-10 bg-background-primary p-4 rounded-full shadow-sm mb-2">
+             <Lock className="h-8 w-8 text-brand-secondary" />
+          </div>
+          <div className="relative z-10 max-w-sm">
+            <h3 className="text-lg font-semibold text-text-primary">Security Recommendations</h3>
+            <p className="text-text-secondary mt-1">
+              AI-powered recommendations to improve your security posture will be available shortly.
+            </p>
+          </div>
+           <div className="absolute inset-0 bg-background-primary/5 backdrop-blur-[1px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+             <span className="bg-background-primary px-4 py-2 rounded-full shadow-lg text-sm font-medium text-brand-secondary">Coming Soon</span>
+          </div>
+        </Card>
+      </section>
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Users2, AlertCircle, RefreshCw } from "lucide-react";
-import { Button, Spinner, EmptyState } from "@/components/ui";
+import { Button, EmptyState } from "@/components/ui";
 import { Pagination, SearchInput } from "@/components/ui";
-import { DataList, GroupListItem } from "@/components/workspace";
+import Table, { Column } from "@/components/ui/Table";
 import { getWorkspaceGroups } from "@/api/workspace";
 import type { WorkspaceGroupListItem, PaginationInfo } from "@/types/workspace";
 
@@ -66,9 +66,57 @@ const GroupsPage = () => {
     setPage(newPage);
   };
 
+  const columns: Column<WorkspaceGroupListItem>[] = [
+    {
+      key: "name",
+      header: "Group",
+      render: (group) => (
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-secondary/10 text-brand-secondary shrink-0">
+            <Users2 className="h-4 w-4" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="font-medium text-text-primary truncate">
+              {group.name}
+            </span>
+            <span className="text-xs text-text-tertiary truncate">
+              {group.email}
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "email",
+      header: "Email",
+      render: (group) => (
+        <span className="text-text-secondary">{group.email}</span>
+      ),
+    },
+    {
+      key: "direct_members_count",
+      header: "Members",
+      align: "center",
+      render: (group) => (
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-background-tertiary text-text-secondary">
+          {group.direct_members_count || 0}
+        </span>
+      ),
+    },
+    {
+      key: "description",
+      header: "Description",
+      render: (group) => (
+        <span className="text-text-tertiary truncate max-w-[300px] block">
+          {group.description || "-"}
+        </span>
+      ),
+    },
+  ];
+
   if (listState.error && listState.items.length === 0) {
     return (
-      <div className="bg-background-primary rounded-xl p-8">
+      <div className="bg-background-primary rounded-xl p-8 shadow-sm border border-border-light">
         <EmptyState
           icon={<AlertCircle className="h-12 w-12 text-error-500" />}
           title="Failed to load groups"
@@ -87,51 +135,41 @@ const GroupsPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-text-primary">Groups</h1>
-        <p className="mt-1 text-text-secondary">
-          All groups in your Google Workspace
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary tracking-tight">Groups</h1>
+          <p className="mt-1 text-text-secondary">
+            All groups in your Google Workspace
+          </p>
+        </div>
+        <div className="w-full sm:w-72">
+          <SearchInput
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Search groups..."
+            isLoading={listState.isLoading}
+          />
+        </div>
       </div>
 
-      {/* Search */}
-      <div className="max-w-md">
-        <SearchInput
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Search groups..."
-          isLoading={listState.isLoading}
-        />
-      </div>
+      {/* Groups Table */}
+      <Table
+        columns={columns}
+        data={listState.items}
+        isLoading={listState.isLoading}
+        emptyMessage="No groups found"
+      />
 
-      {/* Groups List */}
-      <div className="bg-background-primary rounded-xl overflow-hidden">
-        <DataList
-          items={listState.items}
-          isLoading={listState.isLoading}
-          error={listState.error}
-          emptyState={{
-            title: "No groups found",
-            description: "Workspace groups will appear here after syncing.",
-            icon: <Users2 className="h-12 w-12 text-text-tertiary" />,
-          }}
-          skeletonVariant="group"
-          skeletonCount={10}
-          renderItem={(item) => <GroupListItem key={item.id} group={item} />}
-          onRetry={fetchGroups}
-        />
-
-        {listState.pagination && listState.pagination.total_pages > 1 && (
-          <div className="px-4 py-3 border-t border-border-light">
-            <Pagination
-              currentPage={listState.pagination.page}
-              totalPages={listState.pagination.total_pages}
-              onPageChange={handlePageChange}
-              isLoading={listState.isLoading}
-            />
-          </div>
-        )}
-      </div>
+      {listState.pagination && listState.pagination.total_pages > 1 && (
+        <div className="flex justify-center">
+          <Pagination
+            currentPage={listState.pagination.page}
+            totalPages={listState.pagination.total_pages}
+            onPageChange={handlePageChange}
+            isLoading={listState.isLoading}
+          />
+        </div>
+      )}
     </div>
   );
 };
