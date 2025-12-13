@@ -8,7 +8,7 @@ import React from "react";
 export interface CardProps {
   children: React.ReactNode;
   className?: string;
-  padding?: "none" | "sm" | "md" | "lg";
+  padding?: "none" | "sm" | "md" | "lg" | "xl";
   hoverable?: boolean;
   onClick?: () => void;
 }
@@ -28,6 +28,7 @@ const Card: React.FC<CardProps> = ({
     sm: "p-3",
     md: "p-4",
     lg: "p-6",
+    xl: "p-8",
   };
 
   const hoverStyles = hoverable

@@ -5,10 +5,10 @@ import { Button, EmptyState, Badge } from "@/components/ui";
 import { Pagination, SearchInput } from "@/components/ui";
 import Table, { Column } from "@/components/ui/Table";
 import { getDiscoveredApps } from "@/api/workspace";
-import type { DiscoveredAppListItem, PaginationInfo } from "@/types/workspace";
+import type { OAuthAppListItem, PaginationInfo } from "@/types/workspace";
 
 interface ListState {
-  items: DiscoveredAppListItem[];
+  items: OAuthAppListItem[];
   isLoading: boolean;
   error: string | null;
   pagination: PaginationInfo | null;
@@ -90,9 +90,9 @@ const AppsPage = () => {
     setPage(newPage);
   };
 
-  const columns: Column<DiscoveredAppListItem>[] = [
+  const columns: Column<OAuthAppListItem>[] = [
     {
-      key: "display_name",
+      key: "name",
       header: "Application",
       render: (app) => (
         <div className="flex items-center gap-3">
@@ -100,9 +100,13 @@ const AppsPage = () => {
             <AppWindow className="h-4 w-4" />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-medium text-text-primary truncate">
-              {app.display_name || "Unknown App"}
-            </span>
+            <div className="flex items-center gap-2">
+                 <span className="font-medium text-text-primary truncate">
+                    {app.name || "Unknown App"}
+                </span>
+                {app.is_system_app && <Badge variant="default" size="sm">System</Badge>}
+                {app.is_trusted && <Badge variant="success" size="sm">Trusted</Badge>}
+            </div>
             <span className="text-xs text-text-tertiary truncate max-w-[200px]">
               {app.client_id}
             </span>
@@ -111,33 +115,34 @@ const AppsPage = () => {
       ),
     },
     {
-      key: "client_type",
-      header: "Type",
+      key: "risk_score",
+      header: "Risk",
       render: (app) => (
-        <Badge
-          variant={getClientTypeBadgeVariant(app.client_type)}
-          size="sm"
-        >
-          {app.client_type || "Unknown"}
-        </Badge>
+         <div className="flex items-center">
+            {app.risk_score > 0 ? (
+                <span className="text-error-500 font-medium">{app.risk_score}</span>
+            ) : (
+                <span className="text-success-500">Safe</span>
+            )}
+        </div>
       ),
     },
     {
-      key: "authorized_users_count",
+      key: "active_grants_count",
       header: "Users",
       align: "center",
       render: (app) => (
         <span className="text-text-secondary">
-          {app.authorized_users_count}
+          {app.active_grants_count}
         </span>
       ),
     },
     {
-      key: "first_seen_at",
-      header: "First Seen",
+      key: "last_activity_at",
+      header: "Last Activity",
       render: (app) => (
         <span className="text-text-secondary">
-          {formatDate(app.first_seen_at)}
+          {app.last_activity_at ? formatDate(app.last_activity_at) : "-"}
         </span>
       ),
     },

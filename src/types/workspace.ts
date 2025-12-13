@@ -30,17 +30,20 @@ export interface WorkspaceGroupListItem {
   direct_members_count: number;
 }
 
-export interface DiscoveredAppListItem {
+export interface OAuthAppListItem {
   id: number;
-  display_name: string | null;
+  name: string;
   client_id: string;
-  client_type: string | null;
-  status: string;
-  first_seen_at: string;
-  last_seen_at: string;
-  scopes_count: number;
-  authorized_users_count: number;
+  risk_score: number;
+  is_system_app: boolean;
+  is_trusted: boolean;
+  scopes_summary: string[];
+  active_grants_count: number;
+  last_activity_at: string | null;
 }
+
+// Keeping this alias for compatibility if needed, or better to remove/replace usages
+export type DiscoveredAppListItem = OAuthAppListItem;
 
 export interface UserAppAuthorization {
   app_id: number;
@@ -74,13 +77,15 @@ export interface AppAuthorizationUser {
 
 export interface AppDetail {
   id: number;
-  display_name: string | null;
+  name: string;
   client_id: string;
-  client_type: string | null;
+  risk_score: number;
+  is_system_app: boolean;
+  is_trusted: boolean;
   status: string;
   all_scopes: string[];
-  first_seen_at: string;
-  last_seen_at: string;
+  active_grants_count: number;
+  last_activity_at: string | null;
   authorizations: AppAuthorizationUser[];
 }
 
@@ -127,7 +132,7 @@ export interface WorkspaceGroupsListResponse {
 }
 
 export interface DiscoveredAppsListResponse {
-  items: DiscoveredAppListItem[];
+  items: OAuthAppListItem[];
   pagination: PaginationInfo;
 }
 

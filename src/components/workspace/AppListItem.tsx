@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, AppWindow } from "lucide-react";
 import { Badge } from "@/components/ui";
-import type { DiscoveredAppListItem } from "@/types/workspace";
+import type { OAuthAppListItem } from "@/types/workspace";
 
 interface AppListItemProps {
-  app: DiscoveredAppListItem;
+  app: OAuthAppListItem;
 }
 
 const formatDate = (dateString: string): string => {
@@ -42,28 +42,36 @@ const AppListItem = ({ app }: AppListItemProps) => {
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="font-medium text-text-primary truncate">
-          {app.display_name || "Unknown App"}
+        <div className="flex items-center gap-2">
+            <div className="font-medium text-text-primary truncate">
+            {app.name || "Unknown App"}
+            </div>
+            {app.is_system_app && (
+                <Badge variant="default" size="sm">System</Badge>
+            )}
+             {app.is_trusted && (
+                <Badge variant="success" size="sm">Trusted</Badge>
+            )}
         </div>
         <div className="text-sm text-text-secondary truncate">
           {app.client_id}
         </div>
       </div>
 
-      <Badge
-        variant={getClientTypeBadgeVariant(app.client_type)}
-        size="sm"
-        className="shrink-0"
-      >
-        {app.client_type || "Unknown"}
-      </Badge>
+      <div className="text-sm text-text-secondary w-20 text-center shrink-0">
+        {app.risk_score > 0 ? (
+            <span className="text-error-500 font-medium">{app.risk_score} Risk</span>
+        ) : (
+            <span className="text-success-500">Safe</span>
+        )}
+      </div>
 
       <div className="text-sm text-text-secondary w-16 text-center shrink-0">
-        {app.authorized_users_count} users
+        {app.active_grants_count} users
       </div>
 
       <div className="text-sm text-text-tertiary w-24 shrink-0">
-        {formatDate(app.first_seen_at)}
+        {app.last_activity_at ? formatDate(app.last_activity_at) : "-"}
       </div>
 
       <ChevronRight className="h-4 w-4 text-text-tertiary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />

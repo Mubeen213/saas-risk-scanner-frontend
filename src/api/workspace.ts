@@ -111,3 +111,15 @@ export const disconnectWorkspace = async (): Promise<
   );
   return response.data;
 };
+
+
+export const getAppTimeline = async (
+  appId: number,
+  params: PaginationParams = {}
+): Promise<ApiResponse<{ items: any[]; pagination: any }>> => {
+  const response = await apiClient.get<ApiResponse<{ items: any[]; pagination: any }>>(
+    `${WORKSPACE_ENDPOINTS.APPS}/${appId}/timeline`,
+    { params }
+  );
+  return response.data;
+};
