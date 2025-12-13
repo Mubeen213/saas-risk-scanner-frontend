@@ -3,6 +3,7 @@ import { AlertCircle, RefreshCw, BarChart3, Lock } from "lucide-react";
 import { Button, Spinner, EmptyState, Card } from "@/components/ui";
 import { StatsGrid, ConnectWorkspaceCTA } from "@/components/workspace";
 import { getWorkspaceStats, getConnectionSettings } from "@/api/workspace";
+import { initiateConnection } from "@/api/integrations";
 import type { WorkspaceStats, ConnectionSettings } from "@/types/workspace";
 
 const DashboardPage = () => {
@@ -69,10 +70,16 @@ const DashboardPage = () => {
     setIsConnecting(true);
     setConnectError(null);
     try {
-      const googleUrl = `${
-        import.meta.env.VITE_API_URL
-      }/oauth/google/authorize`;
-      window.location.href = googleUrl;
+      const response = await initiateConnection("google-workspace");
+      if (response.data) {
+        window.location.href = response.data.authorization_url;
+      } else if (response.error) {
+        setConnectError(response.error.message);
+        setIsConnecting(false);
+      } else {
+        setConnectError("Failed to initiate connection");
+        setIsConnecting(false);
+      }
     } catch {
       setConnectError("Failed to initiate connection");
       setIsConnecting(false);

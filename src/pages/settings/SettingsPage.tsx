@@ -11,6 +11,7 @@ import { Card, Button, EmptyState } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ConnectWorkspaceCTA } from "@/components/workspace";
 import { getConnectionSettings, disconnectWorkspace } from "@/api/workspace";
+import { initiateConnection } from "@/api/integrations";
 import type { ConnectionSettings, ConnectionInfo } from "@/types/workspace";
 
 interface PageState {
@@ -159,10 +160,16 @@ const SettingsPage = () => {
     setIsConnecting(true);
     setConnectError(null);
     try {
-      const googleUrl = `${
-        import.meta.env.VITE_API_URL
-      }/oauth/google/authorize`;
-      window.location.href = googleUrl;
+      const response = await initiateConnection("google-workspace");
+      if (response.data) {
+        window.location.href = response.data.authorization_url;
+      } else if (response.error) {
+        setConnectError(response.error.message);
+        setIsConnecting(false);
+      } else {
+        setConnectError("Failed to initiate connection");
+        setIsConnecting(false);
+      }
     } catch {
       setConnectError("Failed to initiate connection");
       setIsConnecting(false);
