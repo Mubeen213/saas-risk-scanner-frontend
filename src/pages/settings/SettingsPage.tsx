@@ -11,7 +11,7 @@ import { Card, Button, EmptyState } from "@/components/ui";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ConnectWorkspaceCTA } from "@/components/workspace";
 import { getConnectionSettings, disconnectWorkspace } from "@/api/workspace";
-import { initiateConnection } from "@/api/integrations";
+import { initiateConnection, syncConnection } from "@/api/integrations";
 import type { ConnectionSettings, ConnectionInfo } from "@/types/workspace";
 
 interface PageState {
@@ -122,9 +122,15 @@ const SettingsPage = () => {
     setIsSyncing(true);
     setSyncError(null);
     try {
-      // TODO: Implement sync API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      await fetchSettings();
+      if (settings?.connection?.connection_id) {
+        const response = await syncConnection(settings.connection.connection_id);
+        if (response.error) {
+          setSyncError(response.error.message);
+        } else {
+          // Poll for updates or just refresh settings
+          await fetchSettings();
+        }
+      }
     } catch {
       setSyncError("Failed to trigger sync");
     } finally {

@@ -81,12 +81,11 @@ export const getConnections = async (): Promise<
  * Trigger sync for a connection
  */
 export const syncConnection = async (
-  connectionId: number,
-  fullSync: boolean = false
+  connectionId: number
 ): Promise<ApiResponse<SyncResponse>> => {
   const response = await apiClient.post<ApiResponse<SyncResponse>>(
     API_ENDPOINTS.INTEGRATIONS.SYNC(connectionId),
-    { connection_id: connectionId, full_sync: fullSync }
+    { connection_id: connectionId }
   );
   return response.data;
 };
