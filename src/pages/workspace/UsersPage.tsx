@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { Users, AlertCircle, RefreshCw } from "lucide-react";
 import { Button, EmptyState } from "@/components/ui";
 import { Pagination, SearchInput } from "@/components/ui";
@@ -71,27 +72,27 @@ const UsersPage = () => {
       key: "full_name",
       header: "User",
       render: (user) => (
-        <div className="flex items-center gap-3">
+        <Link to={`/users/${user.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity group">
           {user.avatar_url ? (
             <img
               src={user.avatar_url}
               alt={user.full_name || user.email}
-              className="h-8 w-8 rounded-full object-cover border border-border-medium"
+              className="h-8 w-8 rounded-full object-cover border border-border-medium group-hover:border-brand-secondary/50 transition-colors"
             />
           ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-secondary text-white text-xs font-medium shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-secondary text-white text-xs font-medium shrink-0 group-hover:bg-brand-secondary/90 transition-colors">
               {(user.full_name || user.email)[0].toUpperCase()}
             </div>
           )}
           <div className="flex flex-col min-w-0">
-            <span className="font-medium text-text-primary truncate">
+            <span className="font-medium text-text-primary truncate group-hover:text-brand-primary transition-colors">
               {user.full_name || user.email.split("@")[0]}
             </span>
             <span className="text-xs text-text-tertiary truncate">
               {user.email}
             </span>
           </div>
-        </div>
+        </Link>
       ),
     },
     {

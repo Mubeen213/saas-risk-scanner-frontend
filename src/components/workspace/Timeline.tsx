@@ -1,12 +1,12 @@
-import { useRef } from "react";
 import { 
-  Circle, 
   CheckCircle2, 
   XCircle, 
   AlertTriangle,
-  Clock
+  Circle,
+  ShieldAlert,
+  ShieldCheck,
+  User
 } from "lucide-react";
-import { Badge } from "@/components/ui";
 
 // Define event types based on backend OAuthEvent enum/strings
 interface TimelineEvent {
@@ -19,18 +19,44 @@ interface TimelineEvent {
   raw_data: Record<string, any>;
 }
 
-// Icons mapping
-const getEventIcon = (eventType: string) => {
+const getEventConfig = (eventType: string) => {
   switch (eventType.toLowerCase()) {
     case "authorize":
     case "grant":
-      return <CheckCircle2 className="h-5 w-5 text-success-500" />;
+      return {
+        icon: ShieldCheck,
+        color: "text-success-600",
+        bg: "bg-success-50",
+        label: "Access Granted"
+      };
     case "revoke":
-      return <XCircle className="h-5 w-5 text-error-500" />;
+      return {
+        icon: XCircle,
+        color: "text-text-secondary",
+        bg: "bg-background-tertiary",
+        label: "Access Revoked"
+      };
     case "risk_change":
-      return <AlertTriangle className="h-5 w-5 text-warning-500" />;
+      return {
+        icon: AlertTriangle,
+        color: "text-warning-600",
+        bg: "bg-warning-50",
+        label: "Risk Score Changed"
+      };
+    case "suspicious_activity":
+      return {
+        icon: ShieldAlert,
+        color: "text-error-600",
+        bg: "bg-error-50",
+        label: "Suspicious Activity"
+      };
     default:
-      return <Circle className="h-5 w-5 text-info-500" />;
+      return {
+        icon: Circle,
+        color: "text-info-600",
+        bg: "bg-info-50",
+        label: eventType.replace(/_/g, " ")
+      };
   }
 };
 
@@ -50,56 +76,70 @@ interface TimelineProps {
 
 const Timeline = ({ events, isLoading }: TimelineProps) => {
   if (isLoading) {
-    return <div className="text-center py-8 text-text-tertiary">Loading timeline...</div>;
+    return (
+      <div className="space-y-4 animate-pulse">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex gap-4">
+            <div className="h-2 w-12 bg-gray-200 rounded"></div>
+            <div className="h-2 w-full bg-gray-100 rounded"></div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (events.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-text-tertiary bg-background-secondary rounded-lg border border-border-light border-dashed">
-        <Clock className="h-12 w-12 mb-3 opacity-50" />
-        <p>No activity recorded yet</p>
+      <div className="py-8 text-sm text-text-tertiary italic">
+        No activity recorded.
       </div>
     );
   }
 
   return (
-    <div className="relative pl-6 border-l-2 border-border-light space-y-8">
-      {events.map((event) => (
-        <div key={event.id} className="relative">
-          {/* Icon node */}
-          <div className="absolute -left-[33px] top-0 bg-background-primary p-1 rounded-full border border-border-light ring-4 ring-background-primary">
-            {getEventIcon(event.event_type)}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-text-primary capitalize">
-                {event.event_type.replace(/_/g, " ")}
-              </span>
-              <span className="text-xs text-text-tertiary">
-                {formatDate(event.event_time)}
-              </span>
-            </div>
-
-            <p className="text-sm text-text-secondary">
-              {event.actor_email ? (
-                <>
-                  Action by <span className="font-medium text-text-primary">{event.actor_name || event.actor_email}</span>
-                </>
-              ) : (
-                "System Event"
-              )}
-            </p>
+    <div className="relative space-y-6 before:absolute before:inset-0 before:ml-[19px] before:h-full before:w-0.5 before:-translate-x-1/2 before:bg-gradient-to-b before:from-border-light before:via-border-light before:to-transparent">
+      {events.map((event) => {
+        const config = getEventConfig(event.event_type);
+        const Icon = config.icon;
+        
+        return (
+          <div key={event.id} className="relative flex gap-4 group">
+            {/* Timeline Node */}
+            <div className={`absolute left-0 mt-1.5 h-2.5 w-2.5 rounded-full border-2 border-background-primary ring-4 ring-background-primary ${config.color.replace('text', 'bg')} z-10`} />
             
-            {/* Optional details */}
-            {event.raw_data && Object.keys(event.raw_data).length > 0 && (
-                <div className="mt-2 text-xs bg-background-secondary p-2 rounded text-text-tertiary font-mono overflow-auto max-h-32">
-                    {JSON.stringify(event.raw_data, null, 2)}
+            <div className="flex-1 pl-8">
+              {/* Header Row */}
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`text-sm font-semibold ${config.color}`}>
+                  {config.label}
+                </span>
+                <span className="text-xs text-text-tertiary">
+                  • {formatDate(event.event_time)}
+                </span>
+              </div>
+
+              {/* Actor */}
+              <div className="flex items-center gap-2 mb-2">
+                {event.actor_avatar_url ? (
+                  <img src={event.actor_avatar_url} className="h-4 w-4 rounded-full" />
+                ) : (
+                  <User className="h-3 w-3 text-text-tertiary" />
+                )}
+                <span className="text-sm text-text-secondary">
+                  {event.actor_name || event.actor_email || "System"}
+                </span>
+              </div>
+
+              {/* Details (Notion-style toggle block appearance) */}
+              {event.raw_data && Object.keys(event.raw_data).length > 0 && (
+                <div className="text-xs font-mono text-text-tertiary bg-background-tertiary/50 p-2 rounded border border-transparent group-hover:border-border-light transition-colors">
+                  {JSON.stringify(event.raw_data)}
                 </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

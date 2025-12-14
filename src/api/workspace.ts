@@ -115,7 +115,7 @@ export const disconnectWorkspace = async (): Promise<
 
 export const getAppTimeline = async (
   appId: number,
-  params: PaginationParams = {}
+  params: PaginationParams & { user_id?: number } = {}
 ): Promise<ApiResponse<{ items: any[]; pagination: any }>> => {
   const response = await apiClient.get<ApiResponse<{ items: any[]; pagination: any }>>(
     `${WORKSPACE_ENDPOINTS.APPS}/${appId}/timeline`,

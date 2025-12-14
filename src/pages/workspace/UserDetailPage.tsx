@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, AppWindow, Key } from "lucide-react";
+import { ArrowLeft, AppWindow, Key, ChevronRight } from "lucide-react";
 import Card from "@/components/ui/Card";
 import { Badge } from "@/components/ui";
 import { DetailPageSkeleton, DetailPageError } from "@/components/workspace";
-import { getWorkspaceUserDetail } from "@/api/workspace";
+import Timeline from "@/components/workspace/Timeline";
+import { getWorkspaceUserDetail, getAppTimeline } from "@/api/workspace";
 import type { UserDetail, UserAppAuthorization } from "@/types/workspace";
 
 interface PageState {
@@ -36,28 +37,83 @@ const getStatusBadgeVariant = (
   }
 };
 
-const AuthorizedAppRow = ({ auth }: { auth: UserAppAuthorization }) => {
+const AuthorizedAppRow = ({ auth, userId }: { auth: UserAppAuthorization; userId: number }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const toggleExpand = async () => {
+    if (!isExpanded && !hasLoaded) {
+      setIsLoading(true);
+      try {
+        const res = await getAppTimeline(auth.app_id, {
+          page: 1,
+          page_size: 10,
+          user_id: userId,
+        });
+        if (res.data) {
+          setTimeline(res.data.items);
+        }
+        setHasLoaded(true);
+      } catch (err) {
+        console.error("Failed to load timeline", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    setIsExpanded(!isExpanded);
+  };
+
+  // Helper to format grant date, handling 1970/null
+  const formatGrantDate = (dateString: string) => {
+      if (!dateString) return <span className="text-text-tertiary">-</span>;
+      const date = new Date(dateString);
+      if (date.getFullYear() <= 1970) return <span className="text-text-tertiary" title="Exact date unknown (legacy grant)">Unknown</span>;
+      return date.toLocaleDateString();
+  };
+
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-gray-100 last:border-b-0">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-        <AppWindow className="h-4 w-4" />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className="font-medium text-gray-900 truncate">
-          {auth.app_name || "Unknown App"}
+    <div className="border-b border-gray-100 last:border-b-0">
+      <div 
+        className="flex items-center gap-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors px-2 rounded-lg -mx-2"
+        onClick={toggleExpand}
+      >
+        <div className={`transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}>
+           <ChevronRight className="h-4 w-4 text-gray-400" />
         </div>
-        <div className="text-sm text-gray-500 truncate">{auth.client_id}</div>
+        
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+          <AppWindow className="h-4 w-4" />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-gray-900 truncate">
+            {auth.app_name || "Unknown App"}
+          </div>
+          <div className="text-sm text-gray-500 truncate">{auth.client_id}</div>
+        </div>
+
+        <div className="flex items-center gap-1 text-sm text-gray-500 shrink-0">
+          <Key className="h-4 w-4" />
+          {auth.scopes.length} scopes
+        </div>
+
+        <div className="text-sm text-gray-500 shrink-0 min-w-[100px] text-right">
+          {formatGrantDate(auth.authorized_at)}
+        </div>
       </div>
 
-      <div className="flex items-center gap-1 text-sm text-gray-500 shrink-0">
-        <Key className="h-4 w-4" />
-        {auth.scopes.length} scopes
-      </div>
-
-      <div className="text-sm text-gray-500 shrink-0">
-        {formatDate(auth.authorized_at)}
-      </div>
+      {isExpanded && (
+        <div className="pl-14 pr-4 pb-6 pt-2">
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    Activity History
+                </h4>
+                <Timeline events={timeline} isLoading={isLoading} />
+            </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -190,13 +246,13 @@ const UserDetailPage = () => {
           Authorized Apps ({user.authorizations.length})
         </h2>
         {user.authorizations.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-text-tertiary">
             This user hasn't authorized any third-party apps
           </div>
         ) : (
           <div>
             {user.authorizations.map((auth) => (
-              <AuthorizedAppRow key={auth.app_id} auth={auth} />
+              <AuthorizedAppRow key={auth.app_id} auth={auth} userId={user.id} />
             ))}
           </div>
         )}
