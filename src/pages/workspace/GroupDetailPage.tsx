@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Users2 } from "lucide-react";
 import Card from "@/components/ui/Card";
-import { Badge } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
 import { DetailPageSkeleton, DetailPageError } from "@/components/workspace";
 import { getWorkspaceGroupDetail } from "@/api/workspace";
 import type { GroupDetail, GroupMember } from "@/types/workspace";
@@ -55,6 +55,7 @@ const GroupMemberRow = ({ member }: { member: GroupMember }) => {
 
 const GroupDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const groupId = id ? parseInt(id, 10) : null;
 
   const [state, setState] = useState<PageState>({
@@ -100,8 +101,8 @@ const GroupDetailPage = () => {
       <DetailPageError
         message={state.error}
         onRetry={() => groupId && fetchGroupDetail(groupId)}
-        backPath="/dashboard"
-        backLabel="Back to Dashboard"
+        backPath="/groups"
+        backLabel="Back to Groups"
       />
     );
   }
@@ -119,13 +120,14 @@ const GroupDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/dashboard"
-        className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
+      <Button 
+        variant="ghost" 
+        className="pl-0 gap-2 text-text-secondary hover:text-text-primary mb-4"
+        onClick={() => navigate("/groups")}
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Dashboard
-      </Link>
+        Back to Groups
+      </Button>
 
       <div className="flex items-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-purple-50 text-purple-600">

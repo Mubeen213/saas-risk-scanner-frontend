@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, AppWindow, Key, ChevronRight } from "lucide-react";
 import Card from "@/components/ui/Card";
-import { Badge } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
 import { DetailPageSkeleton, DetailPageError } from "@/components/workspace";
 import Timeline from "@/components/workspace/Timeline";
 import { getWorkspaceUserDetail, getAppTimeline } from "@/api/workspace";
@@ -114,6 +114,7 @@ const AuthorizedAppRow = ({ auth, userId }: { auth: UserAppAuthorization; userId
 
 const UserDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const userId = id ? parseInt(id, 10) : null;
 
   const [state, setState] = useState<PageState>({
@@ -159,8 +160,8 @@ const UserDetailPage = () => {
       <DetailPageError
         message={state.error}
         onRetry={() => userId && fetchUserDetail(userId)}
-        backPath="/dashboard"
-        backLabel="Back to Dashboard"
+        backPath="/users"
+        backLabel="Back to Users"
       />
     );
   }
@@ -172,13 +173,14 @@ const UserDetailPage = () => {
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/dashboard"
-        className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
+      <Button 
+        variant="ghost" 
+        className="pl-0 gap-2 text-text-secondary hover:text-text-primary mb-4"
+        onClick={() => navigate("/users")}
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Dashboard
-      </Link>
+        Back to Users
+      </Button>
 
       <div className="flex items-center gap-4">
         {user.avatar_url ? (

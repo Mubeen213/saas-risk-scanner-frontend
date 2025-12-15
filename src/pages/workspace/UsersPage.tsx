@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { Users, AlertCircle, RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { AlertCircle, RefreshCw, ChevronRight } from "lucide-react";
 import { Button, EmptyState } from "@/components/ui";
 import { Pagination, SearchInput } from "@/components/ui";
 import Table, { Column } from "@/components/ui/Table";
@@ -15,6 +15,7 @@ interface ListState {
 }
 
 const UsersPage = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [listState, setListState] = useState<ListState>({
@@ -72,27 +73,27 @@ const UsersPage = () => {
       key: "full_name",
       header: "User",
       render: (user) => (
-        <Link to={`/users/${user.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity group">
+        <div className="flex items-center gap-3">
           {user.avatar_url ? (
             <img
               src={user.avatar_url}
               alt={user.full_name || user.email}
-              className="h-8 w-8 rounded-full object-cover border border-border-medium group-hover:border-brand-secondary/50 transition-colors"
+              className="h-8 w-8 rounded-full object-cover border border-border-medium"
             />
           ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-secondary text-white text-xs font-medium shrink-0 group-hover:bg-brand-secondary/90 transition-colors">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-secondary text-white text-xs font-medium shrink-0">
               {(user.full_name || user.email)[0].toUpperCase()}
             </div>
           )}
           <div className="flex flex-col min-w-0">
-            <span className="font-medium text-text-primary truncate group-hover:text-brand-primary transition-colors">
+            <span className="font-medium text-text-primary truncate">
               {user.full_name || user.email.split("@")[0]}
             </span>
             <span className="text-xs text-text-tertiary truncate">
               {user.email}
             </span>
           </div>
-        </Link>
+        </div>
       ),
     },
     {
@@ -134,6 +135,14 @@ const UsersPage = () => {
           </span>
         );
       },
+    },
+    {
+      key: "actions",
+      header: "",
+      width: "40px",
+      render: () => (
+        <ChevronRight className="h-4 w-4 text-text-tertiary" />
+      ),
     },
   ];
 
@@ -180,6 +189,7 @@ const UsersPage = () => {
         columns={columns}
         data={listState.items}
         isLoading={listState.isLoading}
+        onRowClick={(user) => navigate(`/users/${user.id}`)}
         emptyMessage="No users found"
       />
 
