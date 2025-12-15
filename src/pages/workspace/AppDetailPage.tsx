@@ -7,6 +7,8 @@ import ScopesList from "@/components/workspace/ScopesList";
 import { getDiscoveredAppDetail, getAppTimeline } from "@/api/workspace";
 import type { AppDetail } from "@/types/workspace";
 
+import { formatDisplayDate } from "@/utils/dateUtils";
+
 const AppDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -48,7 +50,7 @@ const AppDetailPage = () => {
         if (!dateString) return <span className="text-text-tertiary">-</span>;
         const date = new Date(dateString);
         if (date.getFullYear() <= 1970) return <span className="text-text-tertiary" title="Exact date unknown (legacy grant)">Unknown</span>;
-        return date.toLocaleDateString();
+        return formatDisplayDate(dateString);
     };
 
     return (
@@ -74,17 +76,17 @@ const AppDetailPage = () => {
                            <span className="font-mono">{app.client_id}</span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                          <Badge variant={app.status === "active" ? "success" : "default"} size="lg">
                             {app.status}
                         </Badge>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8">
                 {/* Main Content (Left Col) */}
-                <div className="lg:col-span-2 space-y-8">
+                <div className="space-y-8">
                     
                     {/* Data Access / Scopes */}
                     <section>
@@ -155,7 +157,7 @@ const AppDetailPage = () => {
                 {/* Sidebar (Right Col) */}
                 <div className="space-y-6">
                     {/* Risk Score Card */}
-                     <Card className="p-6 border-t-4 border-t-success-500">
+                     {/* <Card className="p-6 border-t-4 border-t-success-500">
                         <h3 className="font-medium text-text-secondary mb-4 uppercase tracking-wider text-xs">Risk Assessment</h3>
                         <div className="flex items-center gap-4 mb-4">
                             <div className="p-3 bg-success-50 rounded-full text-success-600">
@@ -171,10 +173,10 @@ const AppDetailPage = () => {
                             <br />
                             Risk Score: <span className="font-mono font-bold">{app.risk_score}</span>
                         </div>
-                    </Card>
+                    </Card> */}
 
                     {/* Metadata Card (Future placeholder) */}
-                    <Card className="p-6">
+                    {/* <Card className="p-6">
                         <h3 className="font-medium text-text-secondary mb-4 uppercase tracking-wider text-xs">Metadata</h3>
                          <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
@@ -188,7 +190,7 @@ const AppDetailPage = () => {
                                 </span>
                             </div>
                         </div>
-                    </Card>
+                    </Card> */}
                 </div>
             </div>
         </div>

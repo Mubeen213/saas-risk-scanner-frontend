@@ -8,6 +8,8 @@ import {
   User
 } from "lucide-react";
 
+import { formatDisplayDateTime } from "@/utils/dateUtils";
+
 // Define event types based on backend OAuthEvent enum/strings
 interface TimelineEvent {
   id: number;
@@ -60,14 +62,6 @@ const getEventConfig = (eventType: string) => {
   }
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  });
-};
 
 interface TimelineProps {
   events: TimelineEvent[];
@@ -114,7 +108,7 @@ const Timeline = ({ events, isLoading }: TimelineProps) => {
                   {config.label}
                 </span>
                 <span className="text-xs text-text-tertiary">
-                  • {formatDate(event.event_time)}
+                  • {formatDisplayDateTime(event.event_time)}
                 </span>
               </div>
 
