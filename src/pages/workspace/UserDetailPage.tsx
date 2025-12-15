@@ -14,13 +14,7 @@ interface PageState {
   data: UserDetail | null;
 }
 
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
+import { formatDisplayDate } from "@/utils/dateUtils";
 
 const getStatusBadgeVariant = (
   status: string
@@ -70,7 +64,7 @@ const AuthorizedAppRow = ({ auth, userId }: { auth: UserAppAuthorization; userId
       if (!dateString) return <span className="text-text-tertiary">-</span>;
       const date = new Date(dateString);
       if (date.getFullYear() <= 1970) return <span className="text-text-tertiary" title="Exact date unknown (legacy grant)">Unknown</span>;
-      return date.toLocaleDateString();
+      return formatDisplayDate(dateString);
   };
 
   return (
