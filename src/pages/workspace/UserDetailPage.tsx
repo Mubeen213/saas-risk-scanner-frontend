@@ -99,7 +99,44 @@ const AuthorizedAppRow = ({ auth, userId }: { auth: UserAppAuthorization; userId
       </div>
 
       {isExpanded && (
-        <div className="pl-14 pr-4 pb-6 pt-2">
+        <div className="pl-14 pr-4 pb-6 pt-2 space-y-4">
+            {/* Granted Scopes Section */}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Granted Scopes
+                </h4>
+                {auth.scopes.length === 0 ? (
+                    <p className="text-sm text-gray-400 italic">No scopes granted</p>
+                ) : (
+                    <div className="flex flex-wrap gap-2">
+                        {auth.scopes.map((scope, index) => {
+                            // Extract the readable scope name from full URL
+                            const scopeName = scope.includes('/') 
+                                ? scope.split('/').pop() || scope 
+                                : scope;
+                            
+                            // Check if scope is sensitive (drive, gmail, calendar related)
+                            const isSensitive = /drive|gmail|calendar|contacts|admin/i.test(scope);
+                            
+                            return (
+                                <span
+                                    key={index}
+                                    className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${
+                                        isSensitive 
+                                            ? 'bg-amber-100 text-amber-800 border border-amber-200' 
+                                            : 'bg-blue-50 text-blue-700 border border-blue-100'
+                                    }`}
+                                    title={scope}
+                                >
+                                    {scopeName}
+                                </span>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            {/* Activity History Section */}
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
                 <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
                     Activity History
