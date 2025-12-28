@@ -11,7 +11,7 @@ import { DashboardLayout } from "@/layouts/DashboardLayout";
 import { SignInPage } from "@/pages/auth/SignInPage";
 import { OAuthCallbackPage } from "@/pages/auth/OAuthCallbackPage";
 import { IntegrationCallbackPage } from "@/pages/integrations/IntegrationCallbackPage";
-import { DashboardPage } from "@/pages/dashboard";
+import { AIDashboardPage } from "@/pages/dashboard";
 import { SettingsPage } from "@/pages/settings";
 import {
   UserDetailPage,
@@ -58,7 +58,7 @@ const router = createBrowserRouter([
           },
           {
             path: "dashboard",
-            element: <DashboardPage />,
+            element: <AIDashboardPage />,
           },
           {
             path: "apps",
